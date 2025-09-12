@@ -23,16 +23,11 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let main_impl = quote_spanned! {sig.output.span()=>
         #[cfg(target_arch = "wasm32")]
         #[unsafe(no_mangle)]
-        pub extern "C" fn call() -> i32 {
+        pub extern "C" fn call(ptr: i32, len: i32) -> i32 {
             let result = std::panic::catch_unwind(|| {
-                let input_data = {
-                    let ptr = grid_rs::Input::read_all();
-                    if ptr.is_null() {
-                        return Err("Failed to read input".to_string());
-                    }
-                    unsafe { grid_rs::region::Region::consume(ptr) }
+                let input_data = unsafe {
+                    std::slice::from_raw_parts(ptr as *const u8, len as usize)
                 };
-
                 #new_ident(&input_data)
             });
 
