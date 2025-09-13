@@ -1,4 +1,4 @@
-use grid_rs::{kvs::Storage};
+use grid_rs::kvs::Storage;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
@@ -15,15 +15,22 @@ struct MyOutput {
 
 #[grid_rs::main]
 fn main(input: &[u8]) -> Result<Vec<u8>, String> {
-    let input: MyInput = serde_json::from_slice(input).unwrap();
-    
-    Storage::set(&input.username, &input.data);
-    
+    let input: MyInput = match serde_json::from_slice(input) {
+        Ok(input) => input,
+        Err(e) => {
+            return Err(format!(
+                "JSON deserialization failed: {e}. Input was: {}",
+                String::from_utf8_lossy(input)
+            ));
+        }
+    };
+
     Storage::put(&input.username, &input.data);
+
     let output = MyOutput {
         status: "success".to_string(),
         result: input.data,
     };
-    
+
     Ok(serde_json::to_vec(&output).unwrap())
 }
