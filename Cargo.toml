@@ -1,6 +1,6 @@
 [package]
 name = "grid-rs"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["ZERO Labs Ltd." , "Ewanretor <ewan@s3n.xyz>"]
 license = "MIT"
 description = "A library for interacting with host functions in the Slipstream runtime."
