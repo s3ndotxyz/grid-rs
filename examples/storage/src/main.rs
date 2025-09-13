@@ -19,6 +19,7 @@ fn main(input: &[u8]) -> Result<Vec<u8>, String> {
     
     Storage::set(&input.username, &input.data);
     
+    Storage::put(&input.username, &input.data);
     let output = MyOutput {
         status: "success".to_string(),
         result: input.data,
