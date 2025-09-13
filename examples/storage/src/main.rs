@@ -25,7 +25,7 @@ fn main(input: &[u8]) -> Result<Vec<u8>, String> {
         }
     };
 
-    Storage::put(&input.username, &input.data);
+    Storage::put(format!("user-{}", input.username).as_str(), &input.username, input.data.as_slice());
 
     let output = MyOutput {
         status: "success".to_string(),
