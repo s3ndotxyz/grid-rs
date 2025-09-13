@@ -61,7 +61,7 @@ pub mod kvs;
 #[doc(hidden)]
 pub mod region;
 
-pub use macros::*;
+pub use grid_rs_macros::main;
 
 use region::Region;
 

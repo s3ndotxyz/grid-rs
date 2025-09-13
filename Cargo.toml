@@ -1,7 +1,25 @@
 [package]
 name = "grid-rs"
 version = "0.1.0"
+authors = ["ZERO Labs Ltd." , "Ewanretor <ewan@s3n.xyz>"]
+license = "MIT"
+description = "A library for interacting with host functions in the Slipstream runtime."
+repository = "https://github.com/s3ndotxyz/grid-rs"
+publish = true
 edition = "2024"
 
 [dependencies]
-macros = { path = "./macros" }
+grid-rs-macros = "0.1.0"
+
+[profile.release]
+lto = true
+opt-level = "z"
+
+[profile.dev]
+opt-level = 1
+
+[workspace]
+default-members = ["."]
+members = [".", "macros"]
+exclude = ["examples/*"]
+resolver = "3"
