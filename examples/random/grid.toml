@@ -1,0 +1,17 @@
+# not entirely settled on this
+# it's how i think the runtime manifest should look
+name = "random"
+lang = "rust"
+
+[function]
+name = "random"
+no-url = false
+out = ".out"
+
+[dev.secrets]
+path = ".env.dev"
+allowed_ip = ["0.0.0.0"]
+
+[prod.secrets]
+path = ".env"
+allowed_ip = ["0.0.0.0"]
