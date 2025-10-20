@@ -1,108 +1,32 @@
-name: Package Release
+name: Publish
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'Cargo.toml'
-      - 'macros/Cargo.toml'
-  workflow_dispatch:
+    tags:
+      - "*"
 
 jobs:
-  check-and-publish:
+  publish:
+    name: Publish to crates.io
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish grid-rs-macros
+        id: publish_macros
+        uses: tu6ge/publish-action@v0.4.13
+        continue-on-error: true
         with:
-          fetch-depth: 0
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          package: grid-rs-macros
 
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Wait for crates.io index
+        run: sleep 30
+
+      - name: Publish grid-rs
+        id: publish_grid
+        uses: tu6ge/publish-action@v0.4.13
         with:
-          toolchain: stable
-
-      - name: Install cargo-get
-        run: cargo install cargo-get
-
-      - name: Check and publish grid-rs-macros
-        id: publish-macros
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          cd macros
-          PACKAGE_NAME="grid-rs-macros"
-          CURRENT_VERSION=$(cargo get package.version)
-          echo "Current version of $PACKAGE_NAME: $CURRENT_VERSION"
-          
-          # Check if this version exists on crates.io
-          PUBLISHED_VERSION=$(cargo search $PACKAGE_NAME --limit 1 | grep "^$PACKAGE_NAME" | sed 's/.*= "\(.*\)".*/\1/' || echo "none")
-          echo "Published version: $PUBLISHED_VERSION"
-          
-          if [ "$CURRENT_VERSION" != "$PUBLISHED_VERSION" ]; then
-            echo "Version mismatch detected. Publishing $PACKAGE_NAME v$CURRENT_VERSION..."
-            cargo publish --token "$CARGO_REGISTRY_TOKEN"
-            echo "published=true" >> $GITHUB_OUTPUT
-            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-            echo "package=$PACKAGE_NAME" >> $GITHUB_OUTPUT
-            # Wait for the package to be available on crates.io
-            sleep 30
-          else
-            echo "Version $CURRENT_VERSION already published. Skipping."
-            echo "published=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Check and publish grid-rs
-        id: publish-sdk
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          PACKAGE_NAME="grid-rs"
-          CURRENT_VERSION=$(cargo get package.version)
-          echo "Current version of $PACKAGE_NAME: $CURRENT_VERSION"
-          
-          # Check if this version exists on crates.io
-          PUBLISHED_VERSION=$(cargo search $PACKAGE_NAME --limit 1 | grep "^$PACKAGE_NAME" | sed 's/.*= "\(.*\)".*/\1/' || echo "none")
-          echo "Published version: $PUBLISHED_VERSION"
-          
-          if [ "$CURRENT_VERSION" != "$PUBLISHED_VERSION" ]; then
-            echo "Version mismatch detected. Publishing $PACKAGE_NAME v$CURRENT_VERSION..."
-            cargo publish --token "$CARGO_REGISTRY_TOKEN"
-            echo "published=true" >> $GITHUB_OUTPUT
-            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-            echo "package=$PACKAGE_NAME" >> $GITHUB_OUTPUT
-          else
-            echo "Version $CURRENT_VERSION already published. Skipping."
-            echo "published=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create GitHub Release for macros
-        if: steps.publish-macros.outputs.published == 'true'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.publish-macros.outputs.package }}-v${{ steps.publish-macros.outputs.version }}
-          release_name: ${{ steps.publish-macros.outputs.package }} v${{ steps.publish-macros.outputs.version }}
-          body: |
-            Release of ${{ steps.publish-macros.outputs.package }} version ${{ steps.publish-macros.outputs.version }}
-            
-            Published to crates.io: https://crates.io/crates/${{ steps.publish-macros.outputs.package }}/${{ steps.publish-macros.outputs.version }}
-          draft: false
-          prerelease: false
-
-      - name: Create GitHub Release for SDK
-        if: steps.publish-sdk.outputs.published == 'true'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.publish-sdk.outputs.package }}-v${{ steps.publish-sdk.outputs.version }}
-          release_name: ${{ steps.publish-sdk.outputs.package }} v${{ steps.publish-sdk.outputs.version }}
-          body: |
-            Release of ${{ steps.publish-sdk.outputs.package }} version ${{ steps.publish-sdk.outputs.version }}
-            
-            Published to crates.io: https://crates.io/crates/${{ steps.publish-sdk.outputs.package }}/${{ steps.publish-sdk.outputs.version }}
-          draft: false
-          prerelease: false
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          package: grid-rs
