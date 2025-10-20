@@ -7,7 +7,7 @@ use std::mem;
 /// This is used by the host to pass non-primitive data into the Wasm module.
 #[unsafe(no_mangle)]
 extern "C" fn allocate(capacity: usize) -> usize {
-    let mut data = Vec::<u8>::with_capacity(capacity);
+    let mut data = vec![0; capacity];
     data.resize(capacity, 0); // Initialize the memory
     let ptr = data.as_mut_ptr();
     mem::forget(data); // Don't drop the vec

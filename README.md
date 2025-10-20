@@ -7,9 +7,9 @@ This is a library for using host functions from the [*Slipstream runtime*](https
 ## Features
 
 * *kvs*. Provides access to the native in-runtime key-value store. You should be able to manage keys, values, and stores from within your functions. *Note:* stores are based on namespace set within a function. This allows for multiple stores per function, persisting instance state.
-* *time*. We're enabling secure time for you to do things like event scheduling. This is a work in progress.
+* *ws*. Provides server and client connections for modules.
 
-We have plans to enable a few other things such as message queues and web-sockets in the near future. Stay tuned!
+We have plans to enable a few other things such as message queues in the near future. Stay tuned!
 
 ## Example
 
@@ -52,3 +52,5 @@ struct MyOutput {
     result: Vec<u8>,
 }
 ```
+
+Find more examples [here](https://github.com/s3ndotxyz/grid-rs/tree/main/examples).

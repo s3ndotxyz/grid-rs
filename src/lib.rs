@@ -1,8 +1,7 @@
 #![doc = include_str!("../README.md")]
-
 #![no_main]
-pub mod time;
 pub mod kvs;
+pub mod ws;
 #[doc(hidden)]
 pub mod region;
 
