@@ -35,7 +35,7 @@ use crate::region::Region;
 use std::io::Result;
 
 unsafe extern "C" {
-    fn ws_server_create(addr_ptr: usize) -> usize;
+    fn ws_server_create() -> usize;
     fn ws_server_accept(server_id: usize) -> usize;
     fn ws_server_send(server_id: usize, conn_id: usize, data_ptr: usize);
     fn ws_server_receive(server_id: usize, conn_id: usize) -> usize;
@@ -64,11 +64,8 @@ pub struct WebSocketConnection {
 }
 
 impl WebSocketServer {
-    pub fn create(addr: &str) -> Result<Self> {
-        let addr = Region::build(addr.as_bytes());
-        let addr_ptr = &*addr as *const Region;
-
-        let id = unsafe { ws_server_create(addr_ptr as usize) } as u32;
+    pub fn create() -> Result<Self> {
+        let id = unsafe { ws_server_create() } as u32;
         Ok(Self { id })
     }
 

@@ -17,7 +17,7 @@ struct ChatState {
 
 #[grid_rs::main]
 fn main(_input: &[u8]) -> Result<Vec<u8>, String> {
-    let ws = WebSocketServer::create("127.0.0.1:9002")
+    let ws = WebSocketServer::create()
         .map_err(|e| format!("Failed to create server: {e:?}"))?;
     
     let mut state: ChatState = Storage::get("chat", "state")
@@ -43,8 +43,8 @@ fn main(_input: &[u8]) -> Result<Vec<u8>, String> {
                     message_queue.push_back(msg);
                     true
                 }
+                // handle dropped connections
                 Ok(None) => true,
-                // handle connection closure
                 Err(_) => {
                     state.user_count = state.user_count.saturating_sub(1);
                     false
